@@ -193,8 +193,11 @@ class API:
                 if self.turnEndsInMs:
                     time.sleep(0.5)
 
-    def write_data_to_build(self, transports):
+    def write_data(self, transports):
         self.dataToSend = transports
+
+    def write_empty_data(self):
+        self.dataToSend = {"transport": []}
 
     def write_in_json(self):
         with open('LOG_Req_' + self.name_round + '.json', 'a') as f:

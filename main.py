@@ -1,6 +1,7 @@
 import numpy as np
 
 from API import API
+from NotWallDead import *
 from Killing import Killing
 from view import View
 
@@ -20,30 +21,49 @@ class Solution:
     def main_process(self):
         response = self.api.start()
         req_code = 200
-        while req_code == 200:
-            self.view.update(response)
+        while True:
+            if req_code == 200:
+                self.view.update(response)
 
-            command_to_transports_kill = self.killing.try_to_kill(response["transports"],
-                                                                  response["enemies"],
-                                                                  response["attackRange"],
-                                                                  response["attackExplosionRadius"],
-                                                                  response["attackDamage"])
-            print(command_to_transports_kill)
+                command_to_transports_kill = self.killing.try_to_kill(response["transports"],
+                                                                      response["enemies"],
+                                                                      response["attackRange"],
+                                                                      response["attackExplosionRadius"],
+                                                                      response["attackDamage"])
 
-            move = self.base_movement(response["transports"], command_to_transports_kill)
+                dir_to_move = []
+                for transport in response["transports"]:
+                    dir_to_move.append(transport['velocity'])
 
-            self.api.write_data_to_build(move)
+                wall_dangers = wall_checking(response["transports"],
+                                             response["mapSize"])
 
-            req_code, response = self.api.sendReqCommand()
+                ind = 0
+                for wall_danger in wall_dangers:
+                    if wall_danger['wall_danger'] is True:
+                        if wall_danger['x'] != 0:
+                            dir_to_move[ind]['x'] = wall_danger['x']
+                        if wall_danger['y'] != 0:
+                            dir_to_move[ind]['y'] = wall_danger['y']
+                        ind += 1
 
-            print('GAME')
-            json_string = json.dumps(response, indent=4)
-            # Print the JSON string to the console
-            # print(json_string)
+                transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move)
 
-        ...
+                self.api.write_data(transports)
+                req_code, response = self.api.sendReqCommand()
 
-    def base_movement(self, _transports, command_to_transports_kill):
+                # print('GAME')
+                # json_string = json.dumps(response, indent=4)
+                # Print the JSON string to the console
+                # print(json_string)
+
+            else:
+                self.api.write_empty_data()
+                req_code, response = self.api.sendReqCommand()
+
+            ...
+
+    def base_movement(self, _transports, command_to_transports_kill, dir_to_move):
         transports = []
 
         ind = 0
@@ -51,8 +71,8 @@ class Solution:
             transports.append(
                 {
                     "acceleration": {
-                        "x": 2,
-                        "y": 2
+                        "x": dir_to_move[ind]['x'],
+                        "y": dir_to_move[ind]['y']
                     },
                     "activateShield": False,
                     "attack": {
