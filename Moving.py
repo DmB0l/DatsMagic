@@ -3,6 +3,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 import collections
+import operator
 
 class Moving:
     def __init__(self):
@@ -32,6 +33,52 @@ class Moving:
         move_vector = {'x': transport_velocity_x * -1, 'y': transport_velocity_y * -1}
 
         return move_vector
+    
+    # Поиск наибольшего скопления монет (мб суммировать их?)
+    # Дорога к центру (?)
+    def best_way_to_bounties(self, transport, bounties):
+        t_x = transport['x']
+        t_y = transport['y']
+        
+        # Вверху-слева, вверху-справа, внизу-слева, внизу-справа
+        areas = {'UpLeft':0, 'UpRight': 0, 'DownLeft': 0, 'DownRight': 0}
+        # Acceptable distance
+        acpt_dist = 300
+        for bounty in bounties:
+            b_x = bounty['x']
+            b_y = bounty['y']
+            
+            # distance_vector
+            dist_v = {'x': t_x - b_x, 'y': t_x - b_y}
+            if math.hypot(dist_v['x'] < acpt_dist and dist_v['y'] < acpt_dist):
+                if dist_v['x'] < 0:
+                    if dist_v['y'] < 0:
+                        areas['DownLeft'] += bounty['points']
+                    else:
+                        areas['UpLeft'] += bounty['points']
+                    # end if
+                else:
+                    if dist_v['y'] < 0:
+                        areas['DownRight'] += bounty['points']
+                    else:
+                        areas['UpRight'] += bounty['points']
+                    # end if
+                # end if
+            # end if 
+        # end for
+        sorted_items = sorted(areas.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_areas = dict(sorted_items)
+        
+        id = transport['id']
+        print(f'ID:{id}, close areas:{sorted_areas}')
+        return sorted_areas
+            
+                        
+            
+            
+            
+            
+            
 
     @staticmethod
     def distance(x1, x2, y1, y2):

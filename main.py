@@ -4,6 +4,7 @@ from API import API
 from NotWallDead import *
 from Killing import Killing
 from view import View
+from Moving import Moving
 
 import random
 import json
@@ -16,6 +17,7 @@ class Solution:
         self.api = None
 
         self.killing = Killing()
+        self.moving = Moving()
 
     def set_api(self, api):
         self.api = api
@@ -36,6 +38,7 @@ class Solution:
                 dir_to_move = []
                 for transport in response["transports"]:
                     dir_to_move.append(transport['velocity'])
+                    self.moving.best_way_to_bounties(transport, response['bounties'])
 
                 wall_dangers = wall_checking(response["transports"],
                                              response["mapSize"])
