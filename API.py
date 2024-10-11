@@ -7,7 +7,7 @@ import threading
 class API:
     def __init__(self):
         self.token = "67066aec845f267066aec845f7"
-        self.url = "https://games-test.datsteam.dev"  # CHANGE
+        self.url = "https://games-test.datsteam.dev"
         self.headersPOST = {
             "Content-Type": "application/json",
             "X-Auth-Token": "67066aec845f267066aec845f7"
@@ -33,7 +33,7 @@ class API:
         self.turn = None
         self.turnEndsInMs = None
 
-        self.dataToSend = {"attack": [], "build": [], "moveBase": None}
+        self.dataToSend = []
 
         self.name_round = "unknown"
         self.round_repeat = -1
@@ -78,147 +78,60 @@ class API:
             return None, None
 
     def sendReqCommand(self):
-        return self.__post("/play/zombidef/command")
-
-    def sendReqParticipate(self):
-        return self.__put("/play/zombidef/participate")
-
-    def sendReqUnits(self):
-        return self.__get("/play/zombidef/units")
-
-    def sendReqWorld(self):
-        return self.__get("/play/zombidef/world")
+        return self.__post("/play/magcarp/player/move")
 
     def sendReqRounds(self):
-        return self.__get("/rounds/zombidef")
+        return self.__get("/rounds/magcarp")
 
     def start(self):
-        requestThread = threading.Thread(target=self.__starting)
-        requestThread.start()
-
-    def __starting(self):
         while (True):
             status_code, response = self.sendReqRounds()
+
+            print('ROUNDS')
+            print('status_code: ' + str(status_code))
+            print('response: ' + str(response))
 
             #### ЗАПРОС НА РАУНДЫ (ИЩЕТСЯ И ВЫБИРАЕТСЯ АКТИВНЫЙ) ####
 
             if status_code is not None and response is not None and status_code == 200:
+                with open('LOG_Rounds.json', 'a') as f:
+                    if f.tell() == 0:  # check if the file is empty
+                        f.write('[')  # start the JSON array
+                    else:
+                        f.write(',\n')  # add a comma and newline to separate entries
+                    json.dump(response, f, indent=4)
+
                 now_round = "unknown"
-                round_repeat = -1
 
                 for i in range(len(response["rounds"])):
                     # print(response["rounds"][i])
                     if response["rounds"][i]["status"] == "active":
                         now_round = response["rounds"][i]["name"]
-                        round_repeat = response["rounds"][i]["repeat"]
+                        break
 
-                if self.name_round != now_round or self.round_repeat != round_repeat:
-                    status_code, response = self.sendReqParticipate()
+                if now_round != "unknown":
+                    self.name_round = now_round
+                    self.dataToSend = []
+                    status_code, response = self.sendReqCommand()
+                    print('GAME')
+                    print('status_code: ' + str(status_code))
+                    print('response: ' + str(response))
 
-                    #### ЗАПРОС НА УЧАСТИЕ (РЕГИСТРАЦИЯ И ТАЙМЕР ДО НАЧАЛА) ####
+                    with open('LOG_Game_' + now_round + '.json', 'a') as f:
+                        if f.tell() == 0:  # check if the file is empty
+                            f.write('[')  # start the JSON array
+                        else:
+                            f.write(',\n')  # add a comma and newline to separate entries
+                        json.dump(response, f, indent=4)
 
-                    if (status_code is not None
-                            and response is not None
-                            and status_code == 200
-                            and "startsInSec" in response):
-                        print(response)
-                        self.name_round = now_round
-                        self.round_repeat = round_repeat
-                        while response["startsInSec"] > 1:
-                            time.sleep(1)
-                            status_code, response = self.sendReqParticipate()
-                            print(response)
-                            if (status_code is None
-                                    or response is None
-                                    or status_code != 200
-                                    or "startsInSec" not in response):
-                                break
+                    if status_code is not None and response is not None and status_code == 200:
+                        return response
                     else:
-                        time.sleep(1)
-
-                elif now_round == "unknown":
-                    #### ОБНУЛЕНИЕ ВСЕХ ДАННЫХ ####
-
-                    self.zpots = []
-                    self.base_cells = []
-                    self.base_centre = None
-                    self.enemy_blocks = []
-                    self.player = []
-                    self.zombies = []
-                    self.turn = None
-                    self.turnEndsInMs = None
-
-                    time.sleep(1)
+                        time.sleep(0.4)
                 else:
-                    status_code, data_world = self.sendReqWorld()
-
-                    #### ОБРАБОТКА ЗАПРОСОВ НА МИР И ЮНИТОВ ####
-
-                    # with open('LOG_World_' + now_round + '.json', 'a') as f:
-                    #     if f.tell() == 0:  # check if the file is empty
-                    #         f.write('[')  # start the JSON array
-                    #     else:
-                    #         f.write(',\n')  # add a comma and newline to separate entries
-                    #     json.dump(data_world, f, indent=4)
-
-                    # if "zpots" in data_world and data_world["zpots"] is not None and data_world["zpots"] != "null":
-                    #     self.zpots = data_world['zpots']
-                    # else:
-                    #     self.zpots = []
-
-                    status_code, data_units = self.sendReqUnits()
-
-                    # with open('LOG_Units_' + now_round + '.json', 'a') as f:
-                    #     if f.tell() == 0:  # check if the file is empty
-                    #         f.write('[')  # start the JSON array
-                    #     else:
-                    #         f.write(',\n')  # add a comma and newline to separate entries
-                    #     json.dump(data_units, f, indent=4)
-
-                    # if "base" in data_units and data_units["base"] is not None and data_units["base"] != "null":
-                    #     base = data_units["base"]
-                    #     self.base_cells = []
-                    #     for j in range(len(base)):
-                    #         if "isHead" in base[j]:
-                    #             self.base_centre = base[j]
-                    #         else:
-                    #             self.base_cells.append(base[j])
-                    # else:
-                    #     self.base_cells = []
-                    #     self.base_centre = None
-                    #
-                    # if "enemyBlocks" in data_units and "enemyBlocks" in data_units and data_units[
-                    #     "enemyBlocks"] is not None and data_units["enemyBlocks"] != "null":
-                    #     self.enemy_blocks = data_units['enemyBlocks']
-                    # else:
-                    #     self.enemy_blocks = []
-                    #
-                    # if "player" in data_units and data_units["player"] is not None and data_units["player"] != "null":
-                    #     self.player = data_units['player']
-                    # else:
-                    #     self.player = []
-                    #
-                    # if "zombies" in data_units and data_units["zombies"] is not None and data_units[
-                    #     "zombies"] != "null":
-                    #     self.zombies = data_units['zombies']
-                    # else:
-                    #     self.zombies = []
-                    #
-                    # if "turn" in data_units and data_units["turn"] is not None and data_units["turn"] != "null":
-                    #     self.turn = data_units['turn']
-                    # else:
-                    #     self.turn = None
-                    #
-                    # if "turnEndsInMs" in data_units and data_units["turnEndsInMs"] is not None and data_units[
-                    #     "turnEndsInMs"] != "null":
-                    #     self.turnEndsInMs = data_units['turnEndsInMs']
-                    # else:
-                    #     self.turnEndsInMs = None
-
-                    if self.turnEndsInMs:
-                        time.sleep(self.turnEndsInMs / 1000 + 0.05)
-                    else:
-                        time.sleep(0.5)
+                    time.sleep(0.4)
+            else:
+                time.sleep(0.4)
 
     def read_log(self):
         logThread = threading.Thread(target=self.__reading_log)
@@ -308,61 +221,5 @@ class API:
 
 if __name__ == '__main__':
     print("run other main!")
-    # api = API()
-    # api.start()
-
-    # data = {'error': 2682}
-    # with open('empty_json_file.json', 'w') as f:
-    #     json.dump(data, f)
-
-    # api.read_log()
-    #
-    # api.write_attack("f47ac10b-58cc-0372-8562-0e02b2c3d479", {"x": 1, "y": 1})
-    # api.write_build(1, 1)
-    # api.write_build(2, 11)
-    # api.write_move_base(1, 2)
-    #
-    # api.write_in_json()
-
-    # print(api.base)
-
-    # response = api.sendReqRounds()
-
-    # print(len(response["rounds"]))
-    # for i in range(len(response["rounds"])):
-    #     print(response["rounds"][i])
-    #     if response["rounds"][i]["status"] == "active":
-    #         now_round = response["rounds"][i]["name"]
-    #
-    # print(now_round)
-
-    # response = api.sendReqParticipate()
-    # print(response)
-
-    # requestThread = threading.Thread(target=get_world_units)
-    # requestThread.start()
-
-    # requestThread = threading.Thread(target=read_log)
-    # requestThread.start()
-
-    # while(True):
-    #     response = api.sendReqWorld()
-    #     print(response)
-    #     with open('LOG_World_' + now_round + '.json', 'a') as f:
-    #         if f.tell() == 0:  # check if the file is empty
-    #             f.write('[')  # start the JSON array
-    #         else:
-    #             f.write(',\n')  # add a comma and newline to separate entries
-    #         json.dump(response, f, indent=4)
-    #
-    #     response = api.sendReqUnits()
-    #     print(response)
-    #
-    #     with open('LOG_Units_' + now_round + '.json', 'a') as f:
-    #         if f.tell() == 0:  # check if the file is empty
-    #             f.write('[')  # start the JSON array
-    #         else:
-    #             f.write(',\n')  # add a comma and newline to separate entries
-    #         json.dump(response, f, indent=4)
-    #
-    #     time.sleep(0.5)
+    api = API()
+    api.start()
