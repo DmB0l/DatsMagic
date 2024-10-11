@@ -5,7 +5,7 @@ import numpy as np
 class View:
     def __init__(self):
         plt.ion()
-        self.m_fig, self.m_axs = plt.subplots(1, 1, figsize=(5, 5))
+        self.m_fig, self.m_axs = plt.subplots(1, 1, figsize=(10, 10))
         self.m_axs.set_facecolor("black")
 
         self.m_track = {}
@@ -31,6 +31,8 @@ class View:
 
         for en in enemies:
             self.m_axs.scatter(en["x"], en["y"], c="red")
+            if en['shieldLeftMs'] > 4000:
+                self.m_axs.scatter(en["x"], en["y"], c="red", alpha=0.1, s=55)
 
         for want in wanted:
             self.m_axs.scatter(want["x"], want["y"], c="blue")
