@@ -17,17 +17,22 @@ class Solution:
 
     def main_process(self):
         response = self.api.start()
+        req_code = 200
+        while req_code == 200:
+            self.view.update(response)
 
-        self.view.update(response)
+            # 1) Надо решить, кого атаковать
+            # 2) Стоит ли куда-то съебаться
 
-        # 1) Надо решить, кого атаковать
-        # 2) Стоит ли куда-то съебаться
+            move = self.base_movement(response["transports"])
 
-        move = self.base_movement(response["transports"])
+            self.api.write_data_to_build(move)
 
-        self.api.write_data_to_build(move)
+            req_code, response = self.api.sendReqCommand()
 
-        response = self.api.sendReqCommand()
+
+
+        ...
 
     def base_movement(self, _transports):
         transports = []
@@ -39,7 +44,7 @@ class Solution:
                         "x": 2,
                         "y": 2
                     },
-                    "activateShield": True,
+                    "activateShield": False,
                     "attack": {
                         "x": 0,
                         "y": 0

@@ -53,9 +53,7 @@ class View:
                 self.m_track[transport["id"]]["x"] = self.m_track[transport["id"]]["x"][1:]
                 self.m_track[transport["id"]]["y"] = self.m_track[transport["id"]]["y"][1:]
 
-
         plt.pause(0.1)
-        ...
 
 
 if __name__ == '__main__':
