@@ -33,7 +33,7 @@ class API:
         self.turn = None
         self.turnEndsInMs = None
 
-        self.dataToSend = []
+        self.dataToSend = {"transport": []}
 
         self.name_round = "unknown"
         self.round_repeat = -1
@@ -58,8 +58,7 @@ class API:
 
         response = requests.post(fullURL, json=self.dataToSend, headers=self.headersPOST)
 
-        # self.write_in_json()
-        self.clear_data_to_send()
+        self.dataToSend = {"transport": []}
 
         if response is not None:
             return response.status_code, response.json()
@@ -111,11 +110,14 @@ class API:
 
                 if now_round != "unknown":
                     self.name_round = now_round
-                    self.dataToSend = []
+                    self.dataToSend = {"transport": []}
                     status_code, response = self.sendReqCommand()
                     print('GAME')
                     print('status_code: ' + str(status_code))
                     print('response: ' + str(response))
+                    json_string = json.dumps(response, indent=4)
+                    # Print the JSON string to the console
+                    print(json_string)
 
                     with open('LOG_Game_' + now_round + '.json', 'a') as f:
                         if f.tell() == 0:  # check if the file is empty
@@ -191,23 +193,8 @@ class API:
                 if self.turnEndsInMs:
                     time.sleep(0.5)
 
-    def write_attack(self, blockId, target):
-        dataToAttack = {"blockId": blockId, "target": target}
-        self.dataToSend["attack"].append(dataToAttack)
-
-    def write_build(self, x, y):
-        dataToBuild = {"x": x, "y": y}
-        self.dataToSend["build"].append(dataToBuild)
-
-    def write_move_base(self, x, y):
-        dataToMoveBase = {"x": x, "y": y}
-        self.dataToSend["moveBase"] = dataToMoveBase
-
-    def clear_data_to_send(self):
-        self.dataToSend = {}
-        self.dataToSend["attack"] = []
-        self.dataToSend["build"] = []
-        self.dataToSend["moveBase"] = None
+    def write_data_to_build(self, transport):
+        self.dataToSend = transport
 
     def write_in_json(self):
         with open('LOG_Req_' + self.name_round + '.json', 'a') as f:
