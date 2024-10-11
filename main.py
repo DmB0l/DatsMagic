@@ -1,6 +1,7 @@
 import numpy as np
 
 from API import API
+from Killing import Killing
 from view import View
 
 import random
@@ -11,6 +12,7 @@ class Solution:
     def __init__(self):
         self.api = None
         self.view = View()
+        self.killing = Killing()
 
     def set_api(self, api):
         self.api = api
@@ -21,10 +23,14 @@ class Solution:
         while req_code == 200:
             self.view.update(response)
 
-            # 1) Надо решить, кого атаковать
-            # 2) Стоит ли куда-то съебаться
+            command_to_transports_kill = self.killing.try_to_kill(response["transports"],
+                                                                  response["enemies"],
+                                                                  response["attackRange"],
+                                                                  response["attackExplosionRadius"],
+                                                                  response["attackDamage"])
+            print(command_to_transports_kill)
 
-            move = self.base_movement(response["transports"])
+            move = self.base_movement(response["transports"], command_to_transports_kill)
 
             self.api.write_data_to_build(move)
 
@@ -33,15 +39,14 @@ class Solution:
             print('GAME')
             json_string = json.dumps(response, indent=4)
             # Print the JSON string to the console
-            print(json_string)
-
-
+            # print(json_string)
 
         ...
 
-    def base_movement(self, _transports):
+    def base_movement(self, _transports, command_to_transports_kill):
         transports = []
 
+        ind = 0
         for transport in _transports:
             transports.append(
                 {
@@ -51,14 +56,14 @@ class Solution:
                     },
                     "activateShield": False,
                     "attack": {
-                        "x": 0,
-                        "y": 0
+                        "x": command_to_transports_kill[ind]['x'],
+                        "y": command_to_transports_kill[ind]['y']
                     },
                     "id": transport["id"]
                 }
             )
+            ind += 1
         return {"transports": transports}
-
 
 
 api = API()

@@ -13,7 +13,7 @@ class Moving:
         transport_velocity_y = transport['velocity']['y']
 
         move_vector = {'x': x - transport_x, 'y': y - transport_y}
-        length_move_vector = math.hypot(move_vector['x'], move_vector['x'])
+        length_move_vector = math.hypot(move_vector['x'], move_vector['y'])
 
         koef = max_speed / length_move_vector
 

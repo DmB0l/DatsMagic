@@ -54,28 +54,34 @@ class Killing:
                     if length_to_enemy <= attackRange:
                         near_enemies.append(enemy)
 
-                sorted_enemies = sorted(
-                    near_enemies,
-                    key=lambda x: (self.is_have_shield(x),
-                                   self.is_our_not_attack(x, transports, transport, attackExplosionRadius),
-                                   x['killBounty'])
-                )
+                if len(near_enemies) > 0:
+                    sorted_enemies = sorted(
+                        near_enemies,
+                        key=lambda x: (self.is_have_shield(x),
+                                       self.is_low_hp(x, attackDamage),
+                                       self.is_our_not_attack(x, transports, transport, attackExplosionRadius),
+                                       x['killBounty'])
+                    )
 
-                command_to_transports.append(
-                    {
-                        "attack": {
-                            "x": sorted_enemies[0]['x'],
-                            "y": sorted_enemies[0]['y']
+                    command_to_transports.append(
+                        {
+                                "x": sorted_enemies[0]['x'],
+                                "y": sorted_enemies[0]['y']
                         }
-                    }
-                )
-
-            else:
-                command_to_transports.append(
-                    {
-                        "attack": {
+                    )
+                else:
+                    command_to_transports.append(
+                        {
                             "x": 0,
                             "y": 0
                         }
+                    )
+            else:
+                command_to_transports.append(
+                    {
+                        "x": 0,
+                        "y": 0
                     }
                 )
+
+        return command_to_transports
