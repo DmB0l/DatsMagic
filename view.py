@@ -37,6 +37,7 @@ class View:
 
         for anom in anomalies:
             self.m_axs.scatter(anom["x"], anom["y"], s=anom["radius"], c="magenta")
+            self.m_axs.scatter(anom["x"], anom["y"], alpha=0.1, s=anom["effectiveRadius"], c="magenta")
 
         for bounty in bounties:
             self.m_axs.scatter(bounty["x"], bounty["y"], s=bounty["radius"], c="yellow")
