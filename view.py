@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+import matplotlib
+matplotlib.use('TkAgg')
 
 class View:
     def __init__(self):
