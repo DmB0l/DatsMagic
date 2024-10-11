@@ -93,7 +93,7 @@ class API:
             #### ЗАПРОС НА РАУНДЫ (ИЩЕТСЯ И ВЫБИРАЕТСЯ АКТИВНЫЙ) ####
 
             if status_code is not None and response is not None and status_code == 200:
-                with open('LOG_Rounds.json', 'a') as f:
+                with open('LOG_Rounds.json', 'w') as f:
                     if f.tell() == 0:  # check if the file is empty
                         f.write('[')  # start the JSON array
                     else:
@@ -119,7 +119,7 @@ class API:
                     # Print the JSON string to the console
                     print(json_string)
 
-                    with open('LOG_Game_' + now_round + '.json', 'a') as f:
+                    with open('LOG_Game_' + now_round + '.json', 'w') as f:
                         if f.tell() == 0:  # check if the file is empty
                             f.write('[')  # start the JSON array
                         else:
@@ -193,8 +193,8 @@ class API:
                 if self.turnEndsInMs:
                     time.sleep(0.5)
 
-    def write_data_to_build(self, transport):
-        self.dataToSend = transport
+    def write_data_to_build(self, transports):
+        self.dataToSend = transports
 
     def write_in_json(self):
         with open('LOG_Req_' + self.name_round + '.json', 'a') as f:
