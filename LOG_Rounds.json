@@ -94,7 +94,7 @@
             "startAt": "2024-10-11T18:00:00Z",
             "endAt": "2024-10-11T18:55:00Z",
             "duration": 3300,
-            "status": "not started",
+            "status": "active",
             "repeat": 0
         },
         {
@@ -102,7 +102,7 @@
             "startAt": "2024-10-11T17:00:00Z",
             "endAt": "2024-10-11T17:55:00Z",
             "duration": 3300,
-            "status": "active",
+            "status": "ended",
             "repeat": 0
         },
         {
@@ -114,5 +114,5 @@
             "repeat": 0
         }
     ],
-    "now": "2024-10-11T17:27:24.614692592Z"
+    "now": "2024-10-11T18:27:46.949583214Z"
 }

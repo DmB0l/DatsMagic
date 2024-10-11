@@ -30,6 +30,11 @@ class Solution:
 
             req_code, response = self.api.sendReqCommand()
 
+            print('GAME')
+            json_string = json.dumps(response, indent=4)
+            # Print the JSON string to the console
+            print(json_string)
+
 
 
         ...
