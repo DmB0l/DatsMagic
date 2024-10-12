@@ -54,7 +54,7 @@ class Solution:
                     # dir_to_move.append(transport['velocity'])
                     gold_coords = self.moving.best_way_to_bounties(transport, response['bounties'])
                     vec_move = self.moving.move(gold_coords['x'], gold_coords['y'],
-                                                response["transports"][ind], response['maxSpeed'])
+                                                response["transports"][ind], response['maxAccel'])
                     dir_to_move.append(vec_move)
                     ind += 1
 
@@ -67,7 +67,7 @@ class Solution:
                         ind += 1
                     if recommendation['priority'] == 'HIGH':
                         vec_move = self.moving.move(recommendation['vector']['x'], recommendation['vector']['y'],
-                                                    response["transports"][ind], response['maxSpeed'])
+                                                    response["transports"][ind], response['maxAccel'])
                         dir_to_move[ind]['x'] = vec_move['x']
                         dir_to_move[ind]['y'] = vec_move['y']
 
