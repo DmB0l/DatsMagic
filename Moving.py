@@ -150,6 +150,8 @@ class Moving:
                 # plt.plot(avx, avy)
 
             if not len(anomaly_pos):
+                transport_movement_recomendation[id_transport] = {"vector": None,
+                                                                  "priority": "LOW"}
                 continue
 
             transport = warning[id_transport][0]["transport"]
