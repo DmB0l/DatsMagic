@@ -71,7 +71,46 @@ class Moving:
         
         id = transport['id']
         print(f'ID:{id}, close areas:{sorted_areas}')
-        return sorted_areas
+        
+        priority_moves = []
+        for area in sorted_areas.keys():    
+            move = {'x': t_x, 'y': t_y}
+            if area == 'DownLeft':
+                move['x'] += -math.sqrt(10) / 2
+                move['y'] += -math.sqrt(10) / 2
+            elif area == 'UpLeft':
+                move['x'] += -math.sqrt(10) / 2
+                move['y'] += math.sqrt(10) / 2
+            elif area == 'UpRight':
+                move['x'] += math.sqrt(10) / 2
+                move['y'] += math.sqrt(10) / 2
+            elif area == 'DownRight':
+                move['x'] += -math.sqrt(10) / 2
+                move['y'] += -math.sqrt(10) / 2
+            priority_moves.append(move)
+        
+        print(priority_moves[0])
+        return priority_moves[0]
+            
+        
+    
+    # def dodge_enemies(self, transport, enemies):
+    #     t_x = transport['x']
+    #     t_y = transport['y']
+    #     v_x = transport['velocity']['x']
+    #     v_y = transport['velocity']['y']
+        
+    #     for enemy in enemies:
+    #         enemy_x = enemy['x']
+    #         enemy_y = enemy['y']
+    #         enemy_vx = enemy['velocity']['x']
+    #         enemy_vy = enemy['velocity']['y']
+            
+    #         radius = 5
+            
+    #         dist = self.distance(t_x, enemy_x, t_y, enemy_y) + radius
+    #         dist_v = self.distance(v_x, enemy_vx, v_y, enemy_vy)
+        
             
                         
             
