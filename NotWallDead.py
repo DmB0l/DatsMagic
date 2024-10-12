@@ -16,19 +16,19 @@ def wall_checking(transports, mapSize, maxAccel):
         # Проверки на углы
         if transport_x <= undo_wall_dist and transport_y <= undo_wall_dist:
             if transport['velocity']['x'] < 0 or transport['velocity']['y'] < 0:
-                command_to_transports.append({'wall_danger': True, 'x': maxAccel, 'y': maxAccel})
+                command_to_transports.append({'wall_danger': True, 'x': math.sqrt(maxAccel), 'y': math.sqrt(maxAccel)})
 
         elif transport_x >= map_size_x - undo_wall_dist and transport_y <= undo_wall_dist:
             if transport['velocity']['x'] > 0 or transport['velocity']['y'] < 0:
-                command_to_transports.append({'wall_danger': True, 'x': -maxAccel, 'y': maxAccel})
+                command_to_transports.append({'wall_danger': True, 'x': -math.sqrt(maxAccel), 'y': math.sqrt(maxAccel)})
 
         elif transport_x <= undo_wall_dist and transport_y >= map_size_y - undo_wall_dist:
             if transport['velocity']['x'] < 0 or transport['velocity']['y'] > 0:
-                command_to_transports.append({'wall_danger': True, 'x': maxAccel, 'y': -maxAccel})
+                command_to_transports.append({'wall_danger': True, 'x': math.sqrt(maxAccel), 'y': -math.sqrt(maxAccel)})
 
         elif transport_x >= map_size_x - undo_wall_dist and transport_y >= map_size_y - undo_wall_dist:
             if transport['velocity']['x'] > 0 or transport['velocity']['y'] > 0:
-                command_to_transports.append({'wall_danger': True, 'x': -maxAccel, 'y': -maxAccel})
+                command_to_transports.append({'wall_danger': True, 'x': -math.sqrt(maxAccel), 'y': -math.sqrt(maxAccel)})
 
 
         # Проверка на стороны
