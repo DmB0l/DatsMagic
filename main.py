@@ -60,6 +60,10 @@ class Solution:
                         dir_to_move[ind]['y'] = wall_danger['y']
                     ind += 1
 
+                anomaly_dangers = Moving.anomaly_dodge(response)
+                for anomaly_danger in anomaly_dangers:
+                    
+
                 transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move)
 
                 self.api.write_data(transports)
