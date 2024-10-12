@@ -7,7 +7,7 @@ import threading
 class API:
     def __init__(self):
         self.token = "67066aec845f267066aec845f7"
-        self.url = "https://games-test.datsteam.dev"
+        self.url = "https://games.datsteam.dev/"  # https://games.datsteam.dev/
         self.headersPOST = {
             "Content-Type": "application/json",
             "X-Auth-Token": "67066aec845f267066aec845f7"
