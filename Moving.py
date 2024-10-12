@@ -40,29 +40,43 @@ class Moving:
     def best_way_to_bounties(self, transport, bounties):
         t_x = transport['x']
         t_y = transport['y']
-        
-        # Вверху-слева, вверху-справа, внизу-слева, внизу-справа
-        areas = {'UpLeft':0, 'UpRight': 0, 'DownLeft': 0, 'DownRight': 0}
+    
+        areas = {'UpLeftUp': 0, 'UpLeftDown': 0, 'UpRightUp': 0, 'UpRightDown': 0, 
+                 'DownLeftUp': 0, 'DownLeftDown': 0, 'DownRightUp': 0, 'DownRightDown': 0}
         # Acceptable distance
-        acpt_dist = 300
+        acpt_dist = 1000
         for bounty in bounties:
             b_x = bounty['x']
             b_y = bounty['y']
             
             # distance_vector
             dist_v = {'x': t_x - b_x, 'y': t_x - b_y}
-            if math.hypot(dist_v['x'] < acpt_dist and dist_v['y'] < acpt_dist):
+            if dist_v['x'] < acpt_dist and dist_v['y'] < acpt_dist:
                 if dist_v['x'] < 0:
                     if dist_v['y'] < 0:
-                        areas['DownLeft'] += bounty['points']
+                        if abs(dist_v['x']) < abs(dist_v['y']):
+                            areas['DownLeftDown'] += bounty['points']
+                        else:
+                            areas['DownLeftUp'] += bounty['points']
+                        #endif
                     else:
-                        areas['UpLeft'] += bounty['points']
+                        if abs(dist_v['x']) < abs(dist_v['y']):
+                            areas['UpLeftUp'] += bounty['points']
+                        else:
+                            areas['UpLeftDown'] += bounty['points']
                     # end if
                 else:
                     if dist_v['y'] < 0:
-                        areas['DownRight'] += bounty['points']
+                        if abs(dist_v['x']) < abs(dist_v['y']):
+                            areas['DownRightDown'] += bounty['points']
+                        else:
+                            areas['DownRightUp'] += bounty['points']
                     else:
-                        areas['UpRight'] += bounty['points']
+                        if abs(dist_v['x']) < abs(dist_v['y']):
+                            areas['UpRightUp'] += bounty['points']
+                        else:
+                            areas['UpRightDown'] += bounty['points']
+                        #endif
                     # end if
                 # end if
             # end if 
@@ -76,22 +90,35 @@ class Moving:
         priority_moves = []
         for area in sorted_areas.keys():    
             move = {'x': t_x, 'y': t_y}
-            if area == 'DownLeft':
-                move['x'] += -math.sqrt(10) / 2
-                move['y'] += -math.sqrt(10) / 2
-            elif area == 'UpLeft':
-                move['x'] += -math.sqrt(10) / 2
-                move['y'] += math.sqrt(10) / 2
-            elif area == 'UpRight':
-                move['x'] += math.sqrt(10) / 2
-                move['y'] += math.sqrt(10) / 2
-            elif area == 'DownRight':
-                move['x'] += -math.sqrt(10) / 2
-                move['y'] += -math.sqrt(10) / 2
+            if area == 'DownLeftUp':
+                move['x'] -= math.cos(math.radians(180 - 22.5))* acpt_dist / 2
+                move['y'] -= math.sin(math.radians(180 - 22.5))* acpt_dist / 2
+            if area == 'DownLeftDown':
+                move['x'] -= math.cos(math.radians(180 - 77.5))* acpt_dist / 2
+                move['y'] -= math.sin(math.radians(180 - 77.5))* acpt_dist / 2
+            elif area == 'UpLeftUp':
+                move['x'] += math.cos(math.radians(180 - 77.5))* acpt_dist / 2
+                move['y'] += math.cos(math.radians(180 - 77.5))* acpt_dist / 2
+            elif area == 'UpLeftDown':
+                move['x'] += math.cos(math.radians(180 - 22.5))* acpt_dist / 2
+                move['y'] += math.cos(math.radians(180 - 22.5))* acpt_dist / 2
+            elif area == 'UpRightUp':
+                move['x'] += math.cos(math.radians(77.5))* acpt_dist / 2
+                move['y'] += math.sin(math.radians(77.5))* acpt_dist / 2
+            elif area == 'UpRightDown':
+                move['x'] += math.cos(math.radians(22.5))* acpt_dist / 2
+                move['y'] += math.sin(math.radians(22.5))* acpt_dist / 2
+            elif area == 'DownRightUp':
+                move['x'] -= math.cos(math.radians(77.5))* acpt_dist / 2
+                move['y'] -= math.sin(math.radians(77.5))* acpt_dist / 2
+            elif area == 'DownRightDown':
+                move['x'] -= math.cos(math.radians(22.5))* acpt_dist / 2
+                move['y'] -= math.sin(math.radians(22.5))* acpt_dist / 2
             priority_moves.append(move)
         
         print(priority_moves[0])
         return priority_moves[0]
+            
             
         
     
