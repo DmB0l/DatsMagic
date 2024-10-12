@@ -167,6 +167,10 @@ class Moving:
                 d += [np.min(dist)]
 
             vin_vector = vectors[np.argmax(d)]
+
+            vin_vector["x"] += x
+            vin_vector["y"] += y
+
             transport_movement_recomendation[id_transport] = {"vector": vin_vector,
                                                               "priority": "HIGH" if max(
                                                                   d) < _threshold_priority else "LOW"}
@@ -174,9 +178,9 @@ class Moving:
             tvx = [x, x + vectors[np.argmin(d)]["x"]]
             tvy = [y, y + vectors[np.argmin(d)]["y"]]
 
+            print(f"dodge anomalies: {transport_movement_recomendation[id_transport]}")
         #     plt.scatter(x, y, color="green")
         #     plt.plot(tvx, tvy, color="green" if transport_movement_recomendation[id_transport]["priority"] == "LOW" else "red")
         # plt.pause(0.1)
-
         return transport_movement_recomendation
 
