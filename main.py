@@ -60,7 +60,6 @@ class Solution:
                         dir_to_move[ind]['y'] = wall_danger['y']
                     ind += 1
 
-
                 anomaly_dangers = Moving.anomaly_dodge(response)
                 for id_transport_rec, recommendation in anomaly_dangers.items():
                     ind = 0
@@ -69,9 +68,10 @@ class Solution:
                             break
                         ind += 1
                     if recommendation['priority'] == 'HIGH':
-                        vec_move = self.moving.move(recommendation['vector']['x'], recommendation['vector']['y'], response["transports"][ind], response['maxSpeed'])
-                        dir_to_move[ind][]
-                    
+                        vec_move = self.moving.move(recommendation['vector']['x'], recommendation['vector']['y'],
+                                                    response["transports"][ind], response['maxSpeed'])
+                        dir_to_move[ind]['x'] = vec_move['x']
+                        dir_to_move[ind]['y'] = vec_move['y']
 
                 transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move)
 
