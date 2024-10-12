@@ -47,7 +47,7 @@ class Solution:
                                                                       response["attackRange"],
                                                                       response["attackExplosionRadius"],
                                                                       response["attackDamage"])
-
+                _que_view.put(("Kill", command_to_transports_kill))
                 dir_to_move = []
                 ind = 0
                 for transport in response["transports"]:
@@ -152,6 +152,9 @@ def viewer_process(_que: Queue):
 
         if tag == "DodgeAnomaly":
             view.anomaly_dodge_info(info)
+
+        if tag == "Kill":
+            view.target_attack(info)
 
 
 if __name__ == '__main__':
