@@ -50,11 +50,11 @@ class API:
             return None, None
 
     def __post(self, dopURL):
-        print("data to send:")
-        print(self.dataToSend)
+        # print("data to send:")
+        # print(self.dataToSend)
 
         fullURL = self.url + dopURL
-        print(fullURL)
+        # print(fullURL)
 
         response = requests.post(fullURL, json=self.dataToSend, headers=self.headersPOST)
 
@@ -117,7 +117,7 @@ class API:
                     print('response: ' + str(response))
                     json_string = json.dumps(response, indent=4)
                     # Print the JSON string to the console
-                    print(json_string)
+                    # print(json_string)
 
                     with open('LOG_Game_' + now_round + '.json', 'w') as f:
                         if f.tell() == 0:  # check if the file is empty
@@ -193,8 +193,11 @@ class API:
                 if self.turnEndsInMs:
                     time.sleep(0.5)
 
-    def write_data_to_build(self, transports):
+    def write_data(self, transports):
         self.dataToSend = transports
+
+    def write_empty_data(self):
+        self.dataToSend = {"transport": []}
 
     def write_in_json(self):
         with open('LOG_Req_' + self.name_round + '.json', 'a') as f:
