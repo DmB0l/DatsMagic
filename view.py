@@ -1,7 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
+
 matplotlib.use('TkAgg')
+
 
 class View:
     def __init__(self):
@@ -31,25 +33,35 @@ class View:
         self.m_axs.set_xlim(0, map_size["x"])
 
         for en in enemies:
+            evx, evy = [en["x"], en["x"] + en["velocity"]["x"]], [en["y"], en["y"] + en["velocity"]["y"]]
             self.m_axs.scatter(en["x"], en["y"], c="red")
             if en['shieldLeftMs'] > 4000:
                 self.m_axs.scatter(en["x"], en["y"], c="red", alpha=0.1, s=55)
 
+            self.m_axs.plot(evx, evy, color="red")
+
         for want in wanted:
+            wvx, wvy = [want["x"], want["x"] + want["velocity"]["x"]], [want["y"], want["y"] + want["velocity"]["y"]]
             self.m_axs.scatter(want["x"], want["y"], c="blue")
+            self.m_axs.plot(wvx, wvy, color="magenta")
 
         for anom in anomalies:
+            avx, avy = [anom["x"], anom["x"] + anom["velocity"]["x"]], [anom["y"], anom["y"] + anom["velocity"]["y"]]
             self.m_axs.scatter(anom["x"], anom["y"], s=anom["radius"], c="magenta")
             self.m_axs.scatter(anom["x"], anom["y"], alpha=0.1, s=anom["effectiveRadius"], c="magenta")
+            self.m_axs.plot(avx, avy, color="magenta")
 
         for bounty in bounties:
             self.m_axs.scatter(bounty["x"], bounty["y"], s=bounty["radius"], c="yellow")
 
         for transport in transports:
+            tvx, tvy = [transport["x"], transport["x"] + transport["velocity"]["x"]], [transport["y"], transport["y"] +
+                                                                                       transport["velocity"]["y"]]
             self.m_axs.scatter(transport["x"], transport["y"], alpha=transport["health"] / 100, c="green")
             self.m_track[transport["id"]]["x"].append(transport["x"])
             self.m_track[transport["id"]]["y"].append(transport["y"])
 
+            self.m_axs.plot(tvx, tvy, color="green")
             self.m_axs.plot(self.m_track[transport["id"]]["x"], self.m_track[transport["id"]]["y"], color="green",
                             linestyle='-')
 
@@ -57,7 +69,7 @@ class View:
                 self.m_track[transport["id"]]["x"] = self.m_track[transport["id"]]["x"][1:]
                 self.m_track[transport["id"]]["y"] = self.m_track[transport["id"]]["y"][1:]
 
-        plt.pause(0.1)
+        plt.pause(0.05)
 
 
 if __name__ == '__main__':

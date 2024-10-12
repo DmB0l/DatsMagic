@@ -8,22 +8,24 @@ from view import View
 import random
 import json
 
+from multiprocessing import Process, Queue
+
 
 class Solution:
     def __init__(self):
         self.api = None
-        self.view = View()
+
         self.killing = Killing()
 
     def set_api(self, api):
         self.api = api
 
-    def main_process(self):
+    def main_process(self, _que_view: Queue):
         response = self.api.start()
         req_code = 200
         while True:
             if req_code == 200:
-                self.view.update(response)
+                _que_view.put(response)
 
                 command_to_transports_kill = self.killing.try_to_kill(response["transports"],
                                                                       response["enemies"],
@@ -86,7 +88,23 @@ class Solution:
         return {"transports": transports}
 
 
-api = API()
-sol = Solution()
-sol.set_api(api)
-sol.main_process()
+def viewer_process(_que: Queue):
+    view = View()
+
+    while True:
+        if _que.empty():
+            continue
+
+        info = _que.get()
+        view.update(info)
+
+
+if __name__ == '__main__':
+    que_view = Queue()
+    p = Process(target=viewer_process, args=(que_view,))
+    p.start()
+
+    api = API()
+    sol = Solution()
+    sol.set_api(api)
+    sol.main_process(que_view)
