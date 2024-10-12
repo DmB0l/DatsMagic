@@ -117,7 +117,7 @@ class API:
                     print('response: ' + str(response))
                     json_string = json.dumps(response, indent=4)
                     # Print the JSON string to the console
-                    print(json_string)
+                    # print(json_string)
 
                     with open('LOG_Game_' + now_round + '.json', 'w') as f:
                         if f.tell() == 0:  # check if the file is empty
