@@ -38,9 +38,14 @@ class Solution:
                                                                       response["attackDamage"])
 
                 dir_to_move = []
+                ind = 0
                 for transport in response["transports"]:
-                    dir_to_move.append(transport['velocity'])
-                    self.moving.best_way_to_bounties(transport, response['bounties'])
+                    # dir_to_move.append(transport['velocity'])
+                    gold_coords = self.moving.best_way_to_bounties(transport, response['bounties'])
+                    vec_move = self.moving.move(gold_coords['x'], gold_coords['y'],
+                                                response["transports"][ind], response['maxSpeed'])
+                    dir_to_move.append(vec_move)
+                    ind += 1
 
                 anomaly_dangers = Moving.anomaly_dodge(response)
                 for id_transport_rec, recommendation in anomaly_dangers.items():
