@@ -1,3 +1,4 @@
+import copy
 import math
 
 import numpy as np
@@ -165,14 +166,14 @@ class Moving:
         return tr_warning
 
     @staticmethod
-    def anomaly_dodge(_data, _threshold_priority=300) -> dict:
+    def anomaly_dodge(_data, _threshold_priority=1000) -> dict:
         warning = Moving.anomaly_warning(_data)
 
         transport_movement_recomendation = {}
 
-        rect = (30, 30)
-
-        vectors = [{"x": x, "y": y} for y in np.arange(-rect[1] // 2, rect[1] // 2, 1)
+        rect = (6, 6)
+        m = 10
+        vectors = [{"x": x*m, "y": y*m} for y in np.arange(-rect[1] // 2, rect[1] // 2, 1)
                    for x in np.arange(-rect[0] // 2, rect[0] // 2, 1)]
 
         # plt.cla()
@@ -196,30 +197,29 @@ class Moving:
             transport = warning[id_transport][0]["transport"]
             x = transport["x"]
             y = transport["y"]
+            # plt.scatter(x, y, color="green")
 
             d = []
             for v in vectors:
+                tvx = [x, x + v["x"]]
+                tvy = [y, y + v["y"]]
+                # plt.plot(tvx, tvy, color="red")
+
                 dist = []
                 for a_pos in anomaly_pos:
-                    dist += [Moving.distance(x + v["x"], a_pos["x"], y + v["y"], a_pos["x"])]
+                    dist += [Moving.distance(x + v["x"], a_pos["x"], y + v["y"], a_pos["y"])]
 
                 d += [np.min(dist)]
+                ...
 
-            vin_vector = vectors[np.argmax(d)]
+            vin_vector = copy.copy(vectors[np.argmax(d)])
 
             vin_vector["x"] += x
             vin_vector["y"] += y
 
             transport_movement_recomendation[id_transport] = {"vector": vin_vector,
-                                                              "priority": "HIGH" if max(
+                                                              "priority": "HIGH" if min(
                                                                   d) < _threshold_priority else "LOW"}
 
-            tvx = [x, x + vectors[np.argmin(d)]["x"]]
-            tvy = [y, y + vectors[np.argmin(d)]["y"]]
-
-            print(f"dodge anomalies: {transport_movement_recomendation[id_transport]}")
-        #     plt.scatter(x, y, color="green")
-        #     plt.plot(tvx, tvy, color="green" if transport_movement_recomendation[id_transport]["priority"] == "LOW" else "red")
-        # plt.pause(0.1)
         return transport_movement_recomendation
 
