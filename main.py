@@ -52,7 +52,7 @@ class Solution:
                 ind = 0
                 for transport in response["transports"]:
                     # dir_to_move.append(transport['velocity'])
-                    gold_coords = self.moving.best_way_to_bounties(transport, response['bounties'])
+                    gold_coords = self.moving.bounties_way(transport, response)
                     vec_move = self.moving.move(gold_coords['x'], gold_coords['y'],
                                                 response["transports"][ind], response['maxAccel'])
 
