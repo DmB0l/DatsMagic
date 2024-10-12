@@ -14,6 +14,16 @@ class View:
         self.m_track = {}
         self.m_track_store = 10
 
+    def anomaly_dodge_info(self, _info):
+        ...
+
+    def bounties_info(self, _info):
+        transport, bounty_pos = _info
+        self.m_axs.plot([transport["x"], bounty_pos["x"]], [transport["y"], bounty_pos["y"]], color="yellow")
+        print()
+        plt.pause(0.05)
+        ...
+
     def update(self, _info):
         self.m_axs.cla()
 
@@ -55,8 +65,8 @@ class View:
             self.m_axs.scatter(bounty["x"], bounty["y"], s=bounty["radius"], c="yellow")
 
         for transport in transports:
-            tvx, tvy = [transport["x"], transport["x"] + transport["velocity"]["x"]], [transport["y"], transport["y"] +
-                                                                                       transport["velocity"]["y"]]
+            tvx, tvy = [transport["x"], transport["x"] + transport["velocity"]["x"]+ 100] , [transport["y"], transport["y"] +
+                                                                                       transport["velocity"]["y"] + 100]
             self.m_axs.scatter(transport["x"], transport["y"], alpha=transport["health"] / 100, c="green")
             self.m_track[transport["id"]]["x"].append(transport["x"])
             self.m_track[transport["id"]]["y"].append(transport["y"])
