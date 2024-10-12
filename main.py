@@ -27,6 +27,8 @@ class Solution:
             if req_code == 200:
                 _que_view.put(response)
 
+                print(len(response["enemies"]))
+
                 command_to_transports_kill = self.killing.try_to_kill(response["transports"],
                                                                       response["enemies"],
                                                                       response["attackRange"],
@@ -38,16 +40,22 @@ class Solution:
                     dir_to_move.append(transport['velocity'])
 
                 wall_dangers = wall_checking(response["transports"],
-                                             response["mapSize"])
+                                             response["mapSize"],
+                                             response["maxAccel"])
 
                 ind = 0
                 for wall_danger in wall_dangers:
                     if wall_danger['wall_danger'] is True:
-                        if wall_danger['x'] != 0:
-                            dir_to_move[ind]['x'] = wall_danger['x']
-                        if wall_danger['y'] != 0:
-                            dir_to_move[ind]['y'] = wall_danger['y']
-                        ind += 1
+                        # print('wall_danger')
+                        # print('ind: ' + str(ind))
+                        # print('response[maxAccel]' + str(response["maxAccel"]))
+                        # print(wall_danger)
+                        # print(response["transports"][ind])
+                        # if wall_danger['x'] != 0:
+                        dir_to_move[ind]['x'] = wall_danger['x']
+                        # if wall_danger['y'] != 0:
+                        dir_to_move[ind]['y'] = wall_danger['y']
+                    ind += 1
 
                 transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move)
 
