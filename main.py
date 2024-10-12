@@ -19,6 +19,15 @@ class Solution:
         self.killing = Killing()
         self.moving = Moving()
 
+    def activated_shields(self, transports):
+        activating_shield = []
+        for transport in transports:
+            if transport['health'] < 100 and transport['shieldCooldownMs'] == 0:
+                activating_shield.append(True)
+            else:
+                activating_shield.append(False)
+        return activating_shield
+
     def set_api(self, api):
         self.api = api
 
@@ -30,6 +39,8 @@ class Solution:
                 _que_view.put(response)
 
                 print(len(response["enemies"]))
+
+                shields = self.activated_shields(response["transports"])
 
                 command_to_transports_kill = self.killing.try_to_kill(response["transports"],
                                                                       response["enemies"],
@@ -79,7 +90,7 @@ class Solution:
                         dir_to_move[ind]['y'] = wall_danger['y']
                     ind += 1
 
-                transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move)
+                transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move, shields)
 
                 self.api.write_data(transports)
                 req_code, response = self.api.sendReqCommand()
@@ -95,7 +106,7 @@ class Solution:
 
             ...
 
-    def base_movement(self, _transports, command_to_transports_kill, dir_to_move):
+    def base_movement(self, _transports, command_to_transports_kill, dir_to_move, shields):
         transports = []
 
         ind = 0
@@ -106,7 +117,7 @@ class Solution:
                         "x": dir_to_move[ind]['x'],
                         "y": dir_to_move[ind]['y']
                     },
-                    "activateShield": False,
+                    "activateShield": shields[ind],
                     "attack": {
                         "x": command_to_transports_kill[ind]['x'],
                         "y": command_to_transports_kill[ind]['y']
