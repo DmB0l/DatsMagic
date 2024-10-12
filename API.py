@@ -50,11 +50,11 @@ class API:
             return None, None
 
     def __post(self, dopURL):
-        print("data to send:")
-        print(self.dataToSend)
+        # print("data to send:")
+        # print(self.dataToSend)
 
         fullURL = self.url + dopURL
-        print(fullURL)
+        # print(fullURL)
 
         response = requests.post(fullURL, json=self.dataToSend, headers=self.headersPOST)
 
