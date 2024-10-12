@@ -37,107 +37,43 @@ class Moving:
     
     # Поиск наибольшего скопления монет (мб суммировать их?)
     # Дорога к центру (?)
-    def best_way_to_bounties(self, transport, bounties):
-        t_x = transport['x']
-        t_y = transport['y']
-    
-        areas = {'UpLeftUp': 0, 'UpLeftDown': 0, 'UpRightUp': 0, 'UpRightDown': 0, 
-                 'DownLeftUp': 0, 'DownLeftDown': 0, 'DownRightUp': 0, 'DownRightDown': 0}
-        # Acceptable distance
-        acpt_dist = 1000
-        for bounty in bounties:
-            b_x = bounty['x']
-            b_y = bounty['y']
+    @staticmethod
+    def bounties_way(tr, _data, _threshold_priority=300) -> dict:
+        # transports = _data['transports']
+        bounties = _data['bounties']
+        norm_distance = 400
+
+        # for tr in transports:
+        # Позиция в текущий тик
+        tr_x = tr['x']
+        tr_y = tr['y']
+        # Вектор скорости
+        tr_vx = tr['velocity']['x']
+        tr_vy = tr['velocity']['y']
+        # Позиция в следующий тик
+        tr_xvx = tr_x + tr_vx
+        tr_yvy = tr_y + tr_vy
+
+        best_bnt = bounties[0]
+        min_distance = 99999
+
+        best_bounty = {'x': tr_xvx, 'y': tr_yvy}
+        for bnt in bounties:
+            bnt_x = bnt['x']
+            bnt_y = bnt['y']
+            tr_bnt_distance = Moving.distance(tr_x, bnt_x, tr_y, bnt_y)
+            print(f"tr_bnt_distance={tr_bnt_distance} tr_x={tr_x} tr_y={tr_y} bnt_x={bnt_x} bnt_y={bnt_y}")
             
-            # distance_vector
-            dist_v = {'x': t_x - b_x, 'y': t_x - b_y}
-            if dist_v['x'] < acpt_dist and dist_v['y'] < acpt_dist:
-                if dist_v['x'] < 0:
-                    if dist_v['y'] < 0:
-                        if abs(dist_v['x']) < abs(dist_v['y']):
-                            areas['DownLeftDown'] += bounty['points']
-                        else:
-                            areas['DownLeftUp'] += bounty['points']
-                        #endif
-                    else:
-                        if abs(dist_v['x']) < abs(dist_v['y']):
-                            areas['UpLeftUp'] += bounty['points']
-                        else:
-                            areas['UpLeftDown'] += bounty['points']
-                    # end if
-                else:
-                    if dist_v['y'] < 0:
-                        if abs(dist_v['x']) < abs(dist_v['y']):
-                            areas['DownRightDown'] += bounty['points']
-                        else:
-                            areas['DownRightUp'] += bounty['points']
-                    else:
-                        if abs(dist_v['x']) < abs(dist_v['y']):
-                            areas['UpRightUp'] += bounty['points']
-                        else:
-                            areas['UpRightDown'] += bounty['points']
-                        #endif
-                    # end if
-                # end if
-            # end if 
-        # end for
-        sorted_items = sorted(areas.items(), key=operator.itemgetter(1), reverse=True)
-        sorted_areas = dict(sorted_items)
-        
-        id = transport['id']
-        print(f'ID:{id}, close areas:{sorted_areas}')
-        
-        priority_moves = []
-        for area in sorted_areas.keys():    
-            move = {'x': t_x, 'y': t_y}
-            if area == 'DownLeftUp':
-                move['x'] -= math.cos(math.radians(180 - 22.5))* acpt_dist / 2
-                move['y'] -= math.sin(math.radians(180 - 22.5))* acpt_dist / 2
-            if area == 'DownLeftDown':
-                move['x'] -= math.cos(math.radians(180 - 77.5))* acpt_dist / 2
-                move['y'] -= math.sin(math.radians(180 - 77.5))* acpt_dist / 2
-            elif area == 'UpLeftUp':
-                move['x'] += math.cos(math.radians(180 - 77.5))* acpt_dist / 2
-                move['y'] += math.cos(math.radians(180 - 77.5))* acpt_dist / 2
-            elif area == 'UpLeftDown':
-                move['x'] += math.cos(math.radians(180 - 22.5))* acpt_dist / 2
-                move['y'] += math.cos(math.radians(180 - 22.5))* acpt_dist / 2
-            elif area == 'UpRightUp':
-                move['x'] += math.cos(math.radians(77.5))* acpt_dist / 2
-                move['y'] += math.sin(math.radians(77.5))* acpt_dist / 2
-            elif area == 'UpRightDown':
-                move['x'] += math.cos(math.radians(22.5))* acpt_dist / 2
-                move['y'] += math.sin(math.radians(22.5))* acpt_dist / 2
-            elif area == 'DownRightUp':
-                move['x'] -= math.cos(math.radians(77.5))* acpt_dist / 2
-                move['y'] -= math.sin(math.radians(77.5))* acpt_dist / 2
-            elif area == 'DownRightDown':
-                move['x'] -= math.cos(math.radians(22.5))* acpt_dist / 2
-                move['y'] -= math.sin(math.radians(22.5))* acpt_dist / 2
-            priority_moves.append(move)
-        
-        print(priority_moves[0])
-        return priority_moves[0]
-            
-            
-        
-    
-    # def dodge_enemies(self, transport, enemies):
-    #     t_x = transport['x']
-    #     t_y = transport['y']
-    #     v_x = transport['velocity']['x']
-    #     v_y = transport['velocity']['y']
-        
-    #     for enemy in enemies:
-    #         enemy_x = enemy['x']
-    #         enemy_y = enemy['y']
-    #         enemy_vx = enemy['velocity']['x']
-    #         enemy_vy = enemy['velocity']['y']
-            
-    #         radius = 5
-            
-    #         dist = self.distance(t_x, enemy_x, t_y, enemy_y) + radius
-    #         dist_v = self.distance(v_x, enemy_vx, v_y, enemy_vy)
+            if (tr_bnt_distance < norm_distance):
+                tr_v_bnt_distance = Moving.distance(tr_xvx, bnt_x, tr_yvy, bnt_y)
+                if (tr_v_bnt_distance - tr_bnt_distance < min_distance):
+                    min_distance = tr_v_bnt_distance - tr_bnt_distance
+                    best_bnt = bnt
+                    print(f"Update. Min dist={min_distance}, size={len(bounties)}")
+
+        best_bounty['x'] = best_bnt['x']
+        best_bounty['y'] = best_bnt['y']
+        return best_bounty
         
             
                         
