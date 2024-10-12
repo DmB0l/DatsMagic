@@ -79,38 +79,55 @@ class Moving:
         return tr_warning
 
     @staticmethod
-    def anomaly_dodge(_data):
+    def anomaly_dodge(_data, _threshold_priority=300) -> dict:
         warning = Moving.anomaly_warning(_data)
 
         transport_movement_recomendation = {}
 
-        movement = ["lefttop", "leftbottom", "righttop", "rightbottom"]
+        rect = (30, 30)
 
+        vectors = [{"x": x, "y": y} for y in np.arange(-rect[1] // 2, rect[1] // 2, 1)
+                   for x in np.arange(-rect[0] // 2, rect[0] // 2, 1)]
+
+        # plt.cla()
         for id_transport in warning.keys():
-            side = []
-            for w in warning[id_transport]:
-                anom = w["anom"]
-                transport = w["transport"]
+            anomaly_pos = []
 
-                tx, ty = transport["x"], transport["y"]
-                ax, ay = anom["x"], anom["y"]
+            for a in warning[id_transport]:
+                anom = a["anom"]
+                anomaly_pos += [{"x": anom["x"], "y": anom["y"]}]
 
-                pos = ""
-                if ax < tx:
-                    pos += "left"
-                elif ax > tx:
-                    pos += "right"
+                avx, avy = [anom["x"], anom["x"] + anom["velocity"]["x"]], [anom["y"],
+                                                                            anom["y"] + anom["velocity"]["y"]]
+                # plt.scatter(anom["x"], anom["y"], color="magenta")
+                # plt.plot(avx, avy)
 
-                if ay < ty:
-                    pos += "bottom"
-                elif ay > ty:
-                    pos += "top"
+            if not len(anomaly_pos):
+                continue
 
-                side.append(pos)
+            transport = warning[id_transport][0]["transport"]
+            x = transport["x"]
+            y = transport["y"]
 
-            for m in movement:
-                if m not in side:
-                    transport_movement_recomendation[id_transport] = m
+            d = []
+            for v in vectors:
+                dist = []
+                for a_pos in anomaly_pos:
+                    dist += [Moving.distance(x + v["x"], a_pos["x"], y + v["y"], a_pos["x"])]
+
+                d += [np.min(dist)]
+
+            vin_vector = vectors[np.argmax(d)]
+            transport_movement_recomendation[id_transport] = {"vector": vin_vector,
+                                                              "priority": "HIGH" if max(
+                                                                  d) < _threshold_priority else "LOW"}
+
+            tvx = [x, x + vectors[np.argmin(d)]["x"]]
+            tvy = [y, y + vectors[np.argmin(d)]["y"]]
+
+        #     plt.scatter(x, y, color="green")
+        #     plt.plot(tvx, tvy, color="green" if transport_movement_recomendation[id_transport]["priority"] == "LOW" else "red")
+        # plt.pause(0.1)
 
         return transport_movement_recomendation
-            # dict(collections.Counter(positions))
+
