@@ -63,7 +63,7 @@ class Solution:
 
                 anomaly_dangers = Moving.anomaly_dodge(response)
 
-                _que_view.put(("DodgeAnomaly", anomaly_dangers))
+                _que_view.put(("DodgeAnomaly", (response["transports"], anomaly_dangers)))
 
                 for id_transport_rec, recommendation in anomaly_dangers.items():
                     ind = 0
