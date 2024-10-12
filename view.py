@@ -13,6 +13,7 @@ class View:
 
         self.m_track = {}
         self.m_track_store = 10
+        plt.ion()
 
     def anomaly_dodge_info(self, _info):
         transports, info = _info
@@ -29,8 +30,15 @@ class View:
     def bounties_info(self, _info):
         transport, bounty_pos = _info
         self.m_axs.plot([transport["x"], bounty_pos["x"]], [transport["y"], bounty_pos["y"]], color="yellow")
-        print()
+        # print()
         plt.pause(0.05)
+        ...
+
+    def target_attack(self, _targets):
+        for t in _targets:
+            if t["x"] != 0 and t["y"] != 0:
+                self.m_axs.scatter(t["x"], t["y"], s=250, alpha=0.4, color="#FF0000")
+
         ...
 
     def update(self, _info):
