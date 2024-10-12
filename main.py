@@ -36,7 +36,7 @@ class Solution:
         req_code = 200
         while True:
             if req_code == 200:
-                _que_view.put(response)
+                _que_view.put(("Responce", response))
 
                 print(len(response["enemies"]))
 
@@ -55,10 +55,16 @@ class Solution:
                     gold_coords = self.moving.best_way_to_bounties(transport, response['bounties'])
                     vec_move = self.moving.move(gold_coords['x'], gold_coords['y'],
                                                 response["transports"][ind], response['maxAccel'])
+
+                    _que_view.put(("Bounties", (transport, gold_coords)))
+
                     dir_to_move.append(vec_move)
                     ind += 1
 
                 anomaly_dangers = Moving.anomaly_dodge(response)
+
+                _que_view.put(("DodgeAnomaly", anomaly_dangers))
+
                 for id_transport_rec, recommendation in anomaly_dangers.items():
                     ind = 0
                     for transport in response["transports"]:
@@ -136,8 +142,16 @@ def viewer_process(_que: Queue):
         if _que.empty():
             continue
 
-        info = _que.get()
-        view.update(info)
+        tag, info = _que.get()
+
+        if tag == "Responce":
+            view.update(info)
+
+        if tag == "Bounties":
+            view.bounties_info(info)
+
+        if tag == "DodgeAnomaly":
+            view.anomaly_dodge_info(info)
 
 
 if __name__ == '__main__':
