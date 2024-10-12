@@ -17,18 +17,18 @@ class Killing:
 
     def is_our_not_attack(self, enemy, transports, now_transport, attackExplosionRadius):
         for transport in transports:
-            if now_transport != transport:
-                transport_x = transport['x']
-                transport_y = transport['y']
+            # if now_transport != transport:
+            transport_x = transport['x']
+            transport_y = transport['y']
 
-                enemy_x = enemy['x']
-                enemy_y = enemy['y']
+            enemy_x = enemy['x']
+            enemy_y = enemy['y']
 
-                dest = {'x': enemy_x - transport_x, 'y': enemy_y - transport_y}
-                length_to_our_transport = math.hypot(dest['x'], dest['y'])
+            dest = {'x': enemy_x - transport_x, 'y': enemy_y - transport_y}
+            length_to_our_transport = math.hypot(dest['x'], dest['y'])
 
-                if length_to_our_transport <= attackExplosionRadius:
-                    return 1
+            if length_to_our_transport <= attackExplosionRadius:
+                return 1
         return 2
 
     def try_to_kill(self, transports, enemies, attackRange, attackExplosionRadius, attackDamage):
