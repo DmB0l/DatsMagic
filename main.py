@@ -1,10 +1,14 @@
+import time
+from http.client import responses
+
 import numpy as np
 
 from API import API
 from NotWallDead import *
 from Killing import Killing
-from view import View
+# from view import View
 from Moving import Moving
+from RewindClient import RewindClient
 
 import random
 import json
@@ -18,6 +22,7 @@ class Solution:
 
         self.killing = Killing()
         self.moving = Moving()
+        self.rewind_client = RewindClient()
 
     def activated_shields(self, transports):
         activating_shield = []
@@ -31,86 +36,25 @@ class Solution:
     def set_api(self, api):
         self.api = api
 
-    def main_process(self, _que_view: Queue):
-        response = self.api.start()
-        req_code = 200
-        while True:
-            if req_code == 200:
-                _que_view.put(("Responce", response))
+    def main_process(self):
+        response = api.read_log()
+        print(str(response))
+        for transport in response[0]['transports']:
+            print(str(transport))
+            self.rewind_client.circle(transport['x'], transport['y'], 30, self.rewind_client.DARK_GREEN, fill=True)
+        for anom in response[0]['anomalies']:
+            print(str(anom))
+            self.rewind_client.circle(anom['x'], anom['y'], anom['radius'], self.rewind_client.DARK_RED, fill=True)
+            self.rewind_client.circle(anom['x'], anom['y'], anom['effectiveRadius'], self.rewind_client.rgba_to_int(255, 0, 0 ,20), fill=True)
+        for bounty in response[0]['bounties']:
+            print(str(bounty))
+            self.rewind_client.circle(bounty['x'], bounty['y'], bounty['radius'], self.rewind_client.rgba_to_int(255, 255, 0 ,255), fill=True)
 
-                print(len(response["enemies"]))
+        self.rewind_client.message('draw transports')
+        self.rewind_client.end_frame()
+        # while True:
+        #     time.sleep(1)
 
-                shields = self.activated_shields(response["transports"])
-
-                command_to_transports_kill = self.killing.try_to_kill(response["transports"],
-                                                                      response["enemies"],
-                                                                      response["attackRange"],
-                                                                      response["attackExplosionRadius"],
-                                                                      response["attackDamage"])
-                _que_view.put(("Kill", command_to_transports_kill))
-                dir_to_move = []
-                ind = 0
-                for transport in response["transports"]:
-                    # dir_to_move.append(transport['velocity'])
-                    gold_coords = self.moving.bounties_way(transport, response)
-                    vec_move = self.moving.move(gold_coords['x'], gold_coords['y'],
-                                                response["transports"][ind], response['maxAccel'])
-
-                    _que_view.put(("Bounties", (transport, gold_coords)))
-
-                    dir_to_move.append(vec_move)
-                    ind += 1
-
-                anomaly_dangers = Moving.anomaly_dodge(response)
-
-                _que_view.put(("DodgeAnomaly", (response["transports"], anomaly_dangers)))
-
-                for id_transport_rec, recommendation in anomaly_dangers.items():
-                    ind = 0
-                    for transport in response["transports"]:
-                        if transport['id'] == id_transport_rec:
-                            break
-                        ind += 1
-                    if recommendation['priority'] == 'HIGH':
-                        vec_move = self.moving.move(recommendation['vector']['x'], recommendation['vector']['y'],
-                                                    response["transports"][ind], response['maxAccel'])
-                        dir_to_move[ind]['x'] = vec_move['x']
-                        dir_to_move[ind]['y'] = vec_move['y']
-
-
-                wall_dangers = wall_checking(response["transports"],
-                                             response["mapSize"],
-                                             response["maxAccel"])
-
-                ind = 0
-                for wall_danger in wall_dangers:
-                    if wall_danger['wall_danger'] is True:
-                        # print('wall_danger')
-                        # print('ind: ' + str(ind))
-                        # print('response[maxAccel]' + str(response["maxAccel"]))
-                        # print(wall_danger)
-                        # print(response["transports"][ind])
-                        # if wall_danger['x'] != 0:
-                        dir_to_move[ind]['x'] = wall_danger['x']
-                        # if wall_danger['y'] != 0:
-                        dir_to_move[ind]['y'] = wall_danger['y']
-                    ind += 1
-
-                transports = self.base_movement(response["transports"], command_to_transports_kill, dir_to_move, shields)
-
-                self.api.write_data(transports)
-                req_code, response = self.api.sendReqCommand()
-
-                # print('GAME')
-                # json_string = json.dumps(response, indent=4)
-                # Print the JSON string to the console
-                # print(json_string)
-
-            else:
-                self.api.write_empty_data()
-                req_code, response = self.api.sendReqCommand()
-
-            ...
 
     def base_movement(self, _transports, command_to_transports_kill, dir_to_move, shields):
         transports = []
@@ -135,34 +79,34 @@ class Solution:
         return {"transports": transports}
 
 
-def viewer_process(_que: Queue):
-    view = View()
-
-    while True:
-        if _que.empty():
-            continue
-
-        tag, info = _que.get()
-
-        if tag == "Responce":
-            view.update(info)
-
-        if tag == "Bounties":
-            view.bounties_info(info)
-
-        if tag == "DodgeAnomaly":
-            view.anomaly_dodge_info(info)
-
-        if tag == "Kill":
-            view.target_attack(info)
+# def viewer_process(_que: Queue):
+#     view = View()
+#
+#     while True:
+#         if _que.empty():
+#             continue
+#
+#         tag, info = _que.get()
+#
+#         if tag == "Responce":
+#             view.update(info)
+#
+#         if tag == "Bounties":
+#             view.bounties_info(info)
+#
+#         if tag == "DodgeAnomaly":
+#             view.anomaly_dodge_info(info)
+#
+#         if tag == "Kill":
+#             view.target_attack(info)
 
 
 if __name__ == '__main__':
-    que_view = Queue()
-    p = Process(target=viewer_process, args=(que_view,))
-    p.start()
+    # que_view = Queue()
+    # p = Process(target=viewer_process, args=(que_view,))
+    # p.start()
 
     api = API()
     sol = Solution()
     sol.set_api(api)
-    sol.main_process(que_view)
+    sol.main_process()

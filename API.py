@@ -136,8 +136,9 @@ class API:
                 time.sleep(0.4)
 
     def read_log(self):
-        logThread = threading.Thread(target=self.__reading_log)
-        logThread.start()
+        with open('LOG_Game_test-day1-1.json', 'r') as f:
+            data_world = json.load(f)
+            return data_world
 
     def __reading_log(self):
         with open('LOG_World_test-day1-9.json', 'r') as f:

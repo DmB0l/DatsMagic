@@ -2,9 +2,7 @@ import copy
 import math
 
 import numpy as np
-import matplotlib.pyplot as plt
-import collections
-import operator
+
 
 class Moving:
     def __init__(self):
