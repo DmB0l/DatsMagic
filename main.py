@@ -39,9 +39,12 @@ class Solution:
     def main_process(self):
         response = api.read_log()
         print(str(response))
+        ind = 0
         for transport in response[0]['transports']:
             print(str(transport))
             self.rewind_client.circle(transport['x'], transport['y'], 30, self.rewind_client.DARK_GREEN, fill=True)
+            self.rewind_client.circle_popup(transport['x'], transport['y'], 30, "transport " + str(ind))
+            ind += 1
         for anom in response[0]['anomalies']:
             print(str(anom))
             self.rewind_client.circle(anom['x'], anom['y'], anom['radius'], self.rewind_client.DARK_RED, fill=True)
